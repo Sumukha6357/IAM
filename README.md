@@ -27,3 +27,13 @@ npm run dev
 
 ## Env
 Copy .env.example to .env and edit as needed.
+
+## Testing
+### Backend
+cd iam-auth-platform  
+mvn test
+
+### Frontend
+cd web  
+npm run lint  
+npm run build
