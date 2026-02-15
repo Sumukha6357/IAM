@@ -1,0 +1,75 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: iam_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-iam}
+      POSTGRES_USER: ${POSTGRES_USER:-iam}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-iam_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER:-iam} -d ${POSTGRES_DB:-iam}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: iam_redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD","redis-cli","ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: ./iam-auth-platform
+      dockerfile: Dockerfile
+    container_name: iam_api
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Adjust these keys to match your Spring Boot application.yml/env mapping
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-local}
+
+      # Standard Spring datasource vars (many apps support these directly)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-iam}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-iam}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-iam_password}
+
+      # Redis
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-change_me_super_long_secret}
+    ports:
+      - "${API_PORT:-8080}:8080"
+    profiles: ["core","full"]
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: iam_web
+    depends_on:
+      - api
+    environment:
+      # Browser hits host port, so keep localhost for client-side calls
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080}
+      PORT: 3000
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    profiles: ["full"]
+
+volumes:
+  pg_data:

@@ -1,0 +1,23 @@
+
+> web@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 8.3s
+  Running TypeScript ...
+Failed to compile.
+
+./app/docs/[slug]/page.tsx:14:50
+Type error: Object literal may only specify known properties, and 'desc' does not exist in type '{ title: string; details: string; }'.
+
+[0m [90m 12 |[39m         [32m'jwt'[39m[33m:[39m { title[33m:[39m [32m'JWT Authentication'[39m[33m,[39m details[33m:[39m [32m'Stateless JSON Web Tokens are used for secure authorization. Tokens are signed using RSA-256 and stored in the client-side localStorage.'[39m }[33m,[39m
+ [90m 13 |[39m         [32m'refresh'[39m[33m:[39m { title[33m:[39m [32m'Token Refresh'[39m[33m,[39m details[33m:[39m [32m'Automatic refresh cycles ensure users remain logged in without re-authenticating, utilizing protected HTTP-only cookies.'[39m }[33m,[39m
+[31m[1m>[22m[39m[90m 14 |[39m         [32m'blacklist'[39m[33m:[39m { title[33m:[39m [32m'Token Blacklist'[39m[33m,[39m desc[33m:[39m [32m'Logout events trigger a Redis-backed blacklist entry, immediately revoking access even for unexpired tokens.'[39m }[33m,[39m
+ [90m    |[39m                                                  [31m[1m^[22m[39m
+ [90m 15 |[39m         [32m'otp'[39m[33m:[39m { title[33m:[39m [32m'OTP Recovery'[39m[33m,[39m details[33m:[39m [32m'One-Time Passwords are sent via secure channels to verify identity during sensitive account recovery operations.'[39m }[33m,[39m
+ [90m 16 |[39m         [32m'rate-limiting'[39m[33m:[39m { title[33m:[39m [32m'Rate Limiting'[39m[33m,[39m details[33m:[39m [32m'Protects against brute-force attacks by limiting the number of requests per IP and account within a specific window.'[39m }[33m,[39m
+ [90m 17 |[39m         [32m'rbac'[39m[33m:[39m { title[33m:[39m [32m'Role-Based Access Control'[39m[33m,[39m details[33m:[39m [32m'Granular permissions ensure users can only access resources explicitly allowed for their assigned role.'[39m }[0m
+Next.js build worker exited with code: 1 and signal: null
