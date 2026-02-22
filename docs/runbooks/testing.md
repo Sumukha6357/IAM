@@ -2,7 +2,7 @@
 
 ## Backend
 From repo root:
-- cd iam-auth-platform
+- cd api
 - mvn test
 
 ## Frontend

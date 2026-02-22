@@ -29,7 +29,7 @@ services:
 
   api:
     build:
-      context: ./iam-auth-platform
+      context: ./api
       dockerfile: Dockerfile
     container_name: iam_api
     depends_on:

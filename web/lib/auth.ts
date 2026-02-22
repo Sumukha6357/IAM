@@ -44,7 +44,7 @@ export class AuthManager {
             const response = await api.refresh(refreshToken);
             this.saveTokens(response);
             return true;
-        } catch (error) {
+        } catch {
             this.clearTokens();
             return false;
         }

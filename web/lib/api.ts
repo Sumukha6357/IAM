@@ -254,7 +254,7 @@ class ApiService {
             }
 
             return response.json();
-        } catch (e) {
+        } catch {
             return {
                 maxLoginAttempts: 5,
                 lockDurationMinutes: 15,

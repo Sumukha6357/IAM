@@ -55,8 +55,9 @@ export default function SecurityPage() {
             setOldPassword('');
             setNewPassword('');
             setConfirmPassword('');
-        } catch (err: any) {
-            setError(err.message || 'Failed to change password');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Failed to change password';
+            setError(message);
         } finally {
             setLoading(false);
         }

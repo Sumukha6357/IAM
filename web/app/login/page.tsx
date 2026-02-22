@@ -26,8 +26,9 @@ export default function LoginPage() {
                 localStorage.setItem('refreshToken', response.refreshToken);
                 router.push('/dashboard');
             }
-        } catch (err: any) {
-            setError(err.message || 'Login failed. Please check your credentials.');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Login failed. Please check your credentials.';
+            setError(message);
         } finally {
             setLoading(false);
         }
@@ -122,7 +123,7 @@ export default function LoginPage() {
                     {/* Sign Up Link */}
                     <div style={{ marginTop: '24px', textAlign: 'center', paddingTop: '24px', borderTop: '1px solid #e5e7eb' }}>
                         <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-                            Don't have an account?{' '}
+                            Don&apos;t have an account?{' '}
                             <Link href="/register" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: '600' }}>
                                 Create Account
                             </Link>

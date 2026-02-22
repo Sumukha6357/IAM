@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api, User } from '@/lib/api';
@@ -88,7 +89,14 @@ export default function ProfilePage() {
                 <div className="card-premium p-8 mb-8 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-12">
                     <div className="relative group shrink-0 mx-auto md:mx-0">
                         {user.photoUrl ? (
-                            <img src={user.photoUrl} alt="Profile" className="w-32 h-32 rounded-full object-cover shadow-lg ring-4 ring-gray-50 dark:ring-gray-800" />
+                            <Image
+                                src={user.photoUrl}
+                                alt="Profile"
+                                width={128}
+                                height={128}
+                                className="w-32 h-32 rounded-full object-cover shadow-lg ring-4 ring-gray-50 dark:ring-gray-800"
+                                unoptimized
+                            />
                         ) : (
                             <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-4xl font-bold text-white shadow-lg shrink-0 ring-4 ring-gray-50 dark:ring-gray-800">
                                 {initials}
