@@ -53,7 +53,7 @@ public class BootstrapService {
         return tenantRepository.findByName(name)
                 .orElseGet(() -> tenantRepository.save(Tenant.builder()
                         .name(name)
-                        .isDefault(true)
+                        .isDefault(DEFAULT_TENANT.equalsIgnoreCase(name))
                         .build()));
     }
 

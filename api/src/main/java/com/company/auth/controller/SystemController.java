@@ -6,6 +6,7 @@ import com.company.auth.model.SystemStatsResponse;
 import com.company.auth.repository.UserRepository;
 import com.company.auth.service.AuditLogService;
 import com.company.auth.service.BootstrapService;
+import com.company.auth.security.TenantContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,8 @@ public class SystemController {
         Set<String> blacklistedTokens = redisTemplate.keys("auth:v1:blacklist:*");
         Set<String> blockedAttempts = redisTemplate.keys("auth:v1:login-fail:*");
 
-        long totalUsers = userRepository.count();
+        java.util.UUID tenantId = TenantContextHolder.getRequiredTenantId();
+        long totalUsers = userRepository.countByTenantId(tenantId);
 
         return ResponseEntity.ok(SystemStatsResponse.builder()
                 .activeSessions(refreshTokens != null ? refreshTokens.size() : 0)
@@ -50,7 +52,8 @@ public class SystemController {
 
     @GetMapping("/logs")
     public ResponseEntity<List<AuditLog>> getLogs() {
-        return ResponseEntity.ok(auditLogService.getLatestLogs());
+        java.util.UUID tenantId = TenantContextHolder.getRequiredTenantId();
+        return ResponseEntity.ok(auditLogService.getLatestLogsForTenant(tenantId));
     }
 
     @PostMapping("/bootstrap")

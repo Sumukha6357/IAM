@@ -4,6 +4,7 @@ import com.company.auth.model.User;
 import com.company.auth.repository.RoleRepository;
 import com.company.auth.repository.TenantRepository;
 import com.company.auth.repository.UserRepository;
+import com.company.auth.security.TenantContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,8 +53,20 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    public User findByEmailInTenant(String email) {
+        UUID tenantId = TenantContextHolder.getRequiredTenantId();
+        return userRepository.findByEmailAndTenantId(email, tenantId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
     public User findById(java.util.UUID id) {
         return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public User findByIdInTenant(UUID id) {
+        UUID tenantId = TenantContextHolder.getRequiredTenantId();
+        return userRepository.findByIdAndTenantId(id, tenantId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
@@ -65,8 +78,15 @@ public class UserService {
     }
 
     @Transactional
+    public void updatePasswordInTenant(String email, String newPassword) {
+        User user = findByEmailInTenant(email);
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Transactional
     public User updateProfile(String email, String username, String photoUrl) {
-        User user = findByEmail(email);
+        User user = findByEmailInTenant(email);
         if (username != null && !username.isBlank()) {
             user.setUsername(username);
         }

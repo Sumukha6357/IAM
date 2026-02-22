@@ -76,5 +76,6 @@ CREATE TABLE IF NOT EXISTS user_sessions (
 CREATE UNIQUE INDEX IF NOT EXISTS ux_user_sessions_refresh_token_hash ON user_sessions (refresh_token_hash);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_email ON audit_logs (email);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs (created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_tenant_id ON audit_logs (tenant_id);
 CREATE INDEX IF NOT EXISTS idx_users_role_id ON users (role_id);
 CREATE INDEX IF NOT EXISTS idx_users_tenant_id ON users (tenant_id);

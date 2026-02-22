@@ -29,4 +29,8 @@ public class AuditLogService {
     public List<AuditLog> getLatestLogs() {
         return auditLogRepository.findTop10ByOrderByCreatedAtDesc();
     }
+
+    public List<AuditLog> getLatestLogsForTenant(java.util.UUID tenantId) {
+        return auditLogRepository.findTop10ByTenantIdOrderByCreatedAtDesc(tenantId);
+    }
 }

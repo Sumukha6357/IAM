@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.UUID;
+import com.company.auth.security.TenantContextHolder;
 
 @RestController
 @RequestMapping("/auth")
@@ -65,8 +66,8 @@ public class AuthController {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
             loginAttemptService.loginSucceeded(request.getEmail());
-            auditLogService.log(request.getEmail(), "LOGIN", "Successful login", httpRequest.getRemoteAddr(),
-                    userAgent(httpRequest), resolveTenantId(request.getEmail()), resolveUserId(request.getEmail()));
+        auditLogService.log(request.getEmail(), "LOGIN", "Successful login", httpRequest.getRemoteAddr(),
+                userAgent(httpRequest), resolveTenantId(request.getEmail()), resolveUserId(request.getEmail()));
         } catch (BadCredentialsException e) {
             loginAttemptService.loginFailed(request.getEmail());
             auditLogService.log(request.getEmail(), "FAILED_LOGIN", "Invalid credentials", httpRequest.getRemoteAddr(),
@@ -183,7 +184,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid old password");
         }
 
-        userService.updatePassword(email, request.getNewPassword());
+        userService.updatePasswordInTenant(email, request.getNewPassword());
         auditLogService.log(email, "PASSWORD_CHANGE", "Password changed successfully", httpRequest.getRemoteAddr(),
                 userAgent(httpRequest), resolveTenantId(email), resolveUserId(email));
         return ResponseEntity.ok("Password changed successfully");
@@ -191,7 +192,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(Principal principal) {
-        User user = userService.findByEmail(principal.getName());
+        User user = userService.findByEmailInTenant(principal.getName());
         return ResponseEntity.ok(UserResponse.builder()
                 .id(user.getId())
                 .tenantId(user.getTenant().getId())
@@ -228,6 +229,10 @@ public class AuthController {
     }
 
     private java.util.UUID resolveTenantId(String email) {
+        UUID tenantFromContext = TenantContextHolder.getTenantId();
+        if (tenantFromContext != null) {
+            return tenantFromContext;
+        }
         try {
             return userService.findByEmail(email).getTenant().getId();
         } catch (RuntimeException e) {
