@@ -1,4 +1,4 @@
-﻿package com.company.auth.model;
+package com.company.auth.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

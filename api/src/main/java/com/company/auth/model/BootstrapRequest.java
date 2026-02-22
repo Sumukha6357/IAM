@@ -1,4 +1,4 @@
-﻿package com.company.auth.model;
+package com.company.auth.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

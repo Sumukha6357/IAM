@@ -1,4 +1,4 @@
-﻿package com.company.auth.security;
+package com.company.auth.security;
 
 import java.util.UUID;
 

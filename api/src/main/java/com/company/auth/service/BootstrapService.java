@@ -1,4 +1,4 @@
-﻿package com.company.auth.service;
+package com.company.auth.service;
 
 import com.company.auth.model.Permission;
 import com.company.auth.model.Role;
