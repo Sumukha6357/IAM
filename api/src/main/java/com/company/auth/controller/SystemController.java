@@ -35,11 +35,11 @@ public class SystemController {
 
     @GetMapping("/stats")
     public ResponseEntity<SystemStatsResponse> getStats() {
-        Set<String> refreshTokens = redisTemplate.keys("auth:v1:refresh:*");
-        Set<String> blacklistedTokens = redisTemplate.keys("auth:v1:blacklist:*");
-        Set<String> blockedAttempts = redisTemplate.keys("auth:v1:login-fail:*");
-
         java.util.UUID tenantId = TenantContextHolder.getRequiredTenantId();
+        Set<String> refreshTokens = redisTemplate.keys("auth:v1:" + tenantId + ":refresh:*");
+        Set<String> blacklistedTokens = redisTemplate.keys("auth:v1:" + tenantId + ":blacklist:*");
+        Set<String> blockedAttempts = redisTemplate.keys("auth:v1:" + tenantId + ":login-fail:*");
+
         long totalUsers = userRepository.countByTenantId(tenantId);
 
         return ResponseEntity.ok(SystemStatsResponse.builder()

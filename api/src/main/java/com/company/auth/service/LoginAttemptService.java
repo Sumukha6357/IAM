@@ -1,20 +1,25 @@
 package com.company.auth.service;
 
+import com.company.auth.repository.TenantRepository;
+import com.company.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class LoginAttemptService {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final UserRepository userRepository;
+    private final TenantRepository tenantRepository;
 
     private static final int MAX_ATTEMPTS = 5;
     private static final long LOCK_DURATION_MINUTES = 15;
-    private static final String KEY_PREFIX = "auth:v1:login-fail:";
+    private static final String KEY_PREFIX = "auth:v1:";
 
     public int getMaxAttempts() {
         return MAX_ATTEMPTS;
@@ -49,6 +54,15 @@ public class LoginAttemptService {
     }
 
     private String key(String email) {
-        return KEY_PREFIX + email;
+        UUID tenantId = resolveTenantId(email);
+        return KEY_PREFIX + tenantId + ":login-fail:" + email;
+    }
+
+    private UUID resolveTenantId(String email) {
+        return userRepository.findByEmail(email)
+                .map(user -> user.getTenant().getId())
+                .orElseGet(() -> tenantRepository.findByIsDefaultTrue()
+                        .map(tenant -> tenant.getId())
+                        .orElseThrow(() -> new RuntimeException("Default tenant not configured")));
     }
 }

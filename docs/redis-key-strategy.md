@@ -12,10 +12,10 @@ All keys for this service use:
 If a breaking change is required, increment the version segment (e.g., `auth:v2:`) and run dual-read or migration logic as needed.
 
 ## Key Patterns
-- Login lockouts: `auth:v1:login-fail:{email}`
-- Refresh tokens: `auth:v1:refresh:{token}`
-- Blacklisted access tokens: `auth:v1:blacklist:{token}`
-- One-time passwords: `auth:v1:otp:{email}`
+- Login lockouts: `auth:v1:{tenantId}:login-fail:{email}`
+- Refresh tokens: `auth:v1:{tenantId}:refresh:{token}`
+- Blacklisted access tokens: `auth:v1:{tenantId}:blacklist:{token}`
+- One-time passwords: `auth:v1:{tenantId}:otp:{email}`
 
 ## Rules
 - Never store PII in the key beyond existing identifiers already used by the service.

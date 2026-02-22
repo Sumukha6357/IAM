@@ -3,6 +3,7 @@ package com.company.auth.service;
 import com.company.auth.model.UserSession;
 import com.company.auth.repository.UserRepository;
 import com.company.auth.repository.UserSessionRepository;
+import com.company.auth.token.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,6 +23,7 @@ public class RefreshTokenService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final UserSessionRepository userSessionRepository;
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
@@ -30,7 +32,8 @@ public class RefreshTokenService {
     private static final String KEY_PREFIX = "auth:v1:refresh:";
 
     public void createRefreshToken(String token, UUID userId, String deviceId) {
-        String key = key(token);
+        UUID tenantId = resolveTenantId(token, userId);
+        String key = key(tenantId, token);
         redisTemplate.opsForValue().set(key, userId.toString(), Duration.ofMillis(refreshExpiration));
 
         UserSession session = UserSession.builder()
@@ -44,7 +47,8 @@ public class RefreshTokenService {
     }
 
     public String verifyRefreshToken(String token) {
-        String key = key(token);
+        UUID tenantId = resolveTenantId(token, null);
+        String key = key(tenantId, token);
         Object userIdStr = redisTemplate.opsForValue().get(key);
         if (userIdStr == null) {
             throw new RuntimeException("Refresh token is expired or invalid");
@@ -60,7 +64,8 @@ public class RefreshTokenService {
     }
 
     public void deleteRefreshToken(String token) {
-        String key = key(token);
+        UUID tenantId = resolveTenantId(token, null);
+        String key = key(tenantId, token);
         redisTemplate.delete(key);
         String tokenHash = hashToken(token);
         userSessionRepository.findByRefreshTokenHashAndRevokedFalse(tokenHash)
@@ -71,8 +76,24 @@ public class RefreshTokenService {
                 });
     }
 
-    private String key(String token) {
-        return KEY_PREFIX + token;
+    private String key(UUID tenantId, String token) {
+        return "auth:v1:" + tenantId + ":refresh:" + token;
+    }
+
+    private UUID resolveTenantId(String token, UUID userId) {
+        try {
+            String tenantId = jwtService.extractTenantId(token);
+            if (tenantId != null && !tenantId.isBlank()) {
+                return UUID.fromString(tenantId);
+            }
+        } catch (Exception ignored) {
+        }
+        if (userId != null) {
+            return userRepository.findById(userId)
+                    .map(user -> user.getTenant().getId())
+                    .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        }
+        throw new RuntimeException("Tenant context is missing for refresh token");
     }
 
     private String hashToken(String token) {

@@ -65,7 +65,12 @@ public class JwtService {
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+        Map<String, Object> extraClaims = new HashMap<>();
+        if (userDetails instanceof com.company.auth.security.UserDetailsImpl details) {
+            extraClaims.put("tenantId", details.getUser().getTenant().getId().toString());
+            extraClaims.put("userId", details.getUser().getId().toString());
+        }
+        return buildToken(extraClaims, userDetails, refreshExpiration);
     }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
